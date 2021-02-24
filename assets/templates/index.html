@@ -1,0 +1,191 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actitvy API</title>
+    
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</head>
+
+<body>
+    <!--Navbar start-->
+    <nav class="navbar navbar-expand-lg navbar-light bg-secondary">
+        <div class="container-fluid">
+            <a class="navbar-brand px-4" href="#">Actitvy Post</a>
+            <div class="d-flex">
+                <a href="/api/activity" class="btn btn-dark">API - Click Here</a>
+            </div>
+        </div>
+    </nav>
+    <!--Navbar End-->
+    <div class="container">
+    <div class="form-control mt-3">
+        <ul class="nav nav-fill nav-pills" id="mytab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link text-dark active" data-bs-toggle="pill" id="member" role="tab" aria-controls="v-pills-member" aria-selected="true" href="#v-pills-member">Member</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" data-bs-toggle="pill" id="activity" role="tab" aria-controls="v-pills-activity" aria-selected="false" href="#v-pills-activity">Activity</a>
+            </li>
+        </ul>
+    </div>
+    <div class="tab-content p-3" id="v-pills-tabContent">
+        <div class="tab-pane fade show active" id="v-pills-member" role="tabpanel" aria-labelledby="member">
+            <h3 class="text-center h5 mt-3">Member</h3>
+            <div class="form-group px-3 pb-3">
+                <div id="message_member"></div>
+                <form class="row pt-3">
+                    <div class="form-group pb-3">
+                        <label for="id" class="pb-3">ID</label>
+                        <input class="form-control" type="text" id="id" name="id" placeholder="Enter the ID">
+                    </div>
+                    <div class="form-group pb-3">
+                        <label for="name" class="pb-3">Name</label>
+                        <input class="form-control" type="text" id="name" name="name" placeholder="Enter the Name">
+                    </div>
+                    <div class="form-group pb-3">
+                        <label for="tz" class="pb-3">Timezone</label>
+                        <select class="form-control" id="tz" name="tz" aria-label="Default select">
+                            <option selected>Select</option>
+                            {% for each in zones %}
+                            <option value="{{ each.0 }}">{{ each.0 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button class="btn btn-secondary mt-3" id="member_submit">Submit</button>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="tab-pane fade" id="v-pills-activity" role="tabpanel" aria-labelledby="activity">
+            <h3 class="text-center h5 mt-3">Actitvity</h3>
+            <div class="form-group px-3 pb-3">
+                <div id="message_activity"></div>
+                <form class="row pt-3">
+                    <div class="form-group pb-3">
+                        <label for="member_id" class="pb-3">Member</label>
+                        <select class="form-control" id="member_fk" name="member_fk" aria-label="Default select">
+                            <option selected>Select</option>
+                            {% for each in members %}
+                            <option value="{{ each }}">{{ each }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group pb-3">
+                        <label for="start_time" class="pb-3">Start Time</label>
+                        <input class="form-control" type="datetime-local" id="start_time" name="start_time" placeholder="Enter the Name">
+                    </div>
+                    <div class="form-group pb-3">
+                        <label for="end_time" class="pb-3">End Time</label>
+                        <input class="form-control" type="datetime-local" id="end_time" name="end_time" placeholder="Enter the Name">
+                    </div>
+                    <button class="btn btn-secondary mt-3" id="activity_submit">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script>
+        //AJAX CALL FOR MEMBER - POST
+        $('#member_submit').on('click', function(e){
+            e.preventDefault();
+            var id = $('#id').val();
+            var name = $('#name').val();
+            var tz = $('#tz').val();
+            var data = {id,name,tz}
+
+            $.ajax({
+                type: 'GET',
+                url: "{% url 'add_member' %}",
+                data: data,
+                beforeSend: function(){
+                    var spinner = '<div class="spinner-border text-dark" role="status"></div>'
+                    $('#member_submit').html(spinner);
+                },
+                success: function(response){
+                    console.log(response);
+                    if (response.message=="Success"){
+                        var alert_message = `<div class="alert alert-success alert-dismissible text-center" role="alert">
+                            Memeber Saved Successfully
+                        </div>`
+                    }
+                    else{
+                        var alert_message = `<div class="alert alert-danger alert-dismissible text-center" role="alert">
+                            ${response.message}
+                        </div>`
+                    }
+                    $('#message_member').html(alert_message);
+                    $('#member_submit').html('Submit');
+                    $('#id').val('');
+                    $('#name').val('');
+                    $('#tz').val('Select');
+                },
+                error: function(response){
+                    console.log(response);
+                }
+            });
+            setTimeout(reset_message, 3000);
+
+            function reset_message() {
+                var copyMessage = $('#message_member');
+                copyMessage.html("");
+            }
+        });
+
+
+        //AJAX CALL FOR ACTIVITY - POST
+        $('#activity_submit').on('click', function(e){
+            e.preventDefault();
+            var memb_fk = $('#member_fk').val()
+            var start_time = $('#start_time').val();
+            var end_time = $('#end_time').val();
+            var data = {memb_fk,start_time,end_time}
+
+            $.ajax({
+                type: 'GET',
+                url: "{% url 'add_activity' %}",
+                data: data,
+                beforeSend: function(){
+                    var spinner = '<div class="spinner-border text-dark" role="status"></div>'
+                    $('#activity_submit').html(spinner);
+                },
+                success: function(response){
+                    console.log(response);
+                    if (response.message=="Success"){
+                        var alert_message = `<div class="alert alert-success alert-dismissible text-center" role="alert">
+                            Activity Saved Successfully
+                        </div>`
+                    }
+                    else{
+                        var alert_message = `<div class="alert alert-danger alert-dismissible text-center" role="alert">
+                            ${response.message}
+                        </div>`
+                    }
+                    $('#message_activity').html(alert_message);
+                    $('#activity_submit').html('Submit');
+                    $('#member_fk').val('Select');
+                    $('#start_time').val('');
+                    $('#end_time').val('');
+                },
+                error: function(response){
+                    console.log(response);
+                }
+            });
+            setTimeout(reset_message, 3000);
+
+            function reset_message() {
+                var copyMessage = $('#message_activity');
+                copyMessage.html("");
+            }
+        });
+
+    </script>
+</body>
+</html>
