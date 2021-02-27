@@ -10,7 +10,7 @@ from .serializers import MainSerializer, MemberSerializer, ActivitySerializer, A
 
 class MemberViewset(viewsets.ModelViewSet):
     '''
-        Lists all the members and the activity.
+        Lists all the members and their activity periods.
         ok: True - if data exits
         ok: False - if no data exists
     '''
