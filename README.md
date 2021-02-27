@@ -30,3 +30,11 @@ The default method has been modified to retreive the list of objects in custom m
 End Point for API: https://activity-ft-api.herokuapp.com/api/activity/
 
 
+# Deployment
+The application has been deployed in Heroku with Postgres DB as an Addon.
+
+The Gunicorn Dyno has been used for running the application.
+
+
+# Admin Credentials
+The admin credentials have been saved [here](https://docs.google.com/document/d/1pSd-46KQVsM8gy75aQe-ipl_kJW7lYzy9AhFMTQZJdc/edit?usp=sharing).
