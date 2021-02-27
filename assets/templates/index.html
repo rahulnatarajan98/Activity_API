@@ -19,7 +19,7 @@
         <div class="container-fluid">
             <a class="navbar-brand px-4" href="#">Actitvy Post</a>
             <div class="d-flex">
-                <a href="/api/activity" class="btn btn-dark">API - Click Here</a>
+                <a href="/api/get/members" class="btn btn-dark">API - Click Here</a>
             </div>
         </div>
     </nav>
@@ -97,13 +97,14 @@
         $('#member_submit').on('click', function(e){
             e.preventDefault();
             var id = $('#id').val();
-            var name = $('#name').val();
+            var real_name = $('#name').val();
             var tz = $('#tz').val();
-            var data = {id,name,tz}
+            var data = {id,real_name,tz}
+            data = JSON.stringify(data);
 
             $.ajax({
-                type: 'GET',
-                url: "{% url 'add_member' %}",
+                type: 'POST',
+                url: "{% url 'member' %}",
                 data: data,
                 beforeSend: function(){
                     var spinner = '<div class="spinner-border text-dark" role="status"></div>'
@@ -111,7 +112,7 @@
                 },
                 success: function(response){
                     console.log(response);
-                    if (response.message=="Success"){
+                    if (response){
                         var alert_message = `<div class="alert alert-success alert-dismissible text-center" role="alert">
                             Memeber Saved Successfully
                         </div>`
@@ -132,7 +133,10 @@
                 }
             });
             setTimeout(reset_message, 3000);
-
+            $('#activity_submit').html('Submit');
+            $('#member_fk').val('Select');
+            $('#start_time').val('');
+            $('#end_time').val('');
             function reset_message() {
                 var copyMessage = $('#message_member');
                 copyMessage.html("");
@@ -145,12 +149,17 @@
             e.preventDefault();
             var memb_fk = $('#member_fk').val()
             var start_time = $('#start_time').val();
+            console.log(start_time);
             var end_time = $('#end_time').val();
-            var data = {memb_fk,start_time,end_time}
+            console.log(end_time);
+            member_list = memb_fk.split('-')
+            member = member_list[0]
+            var data = {member,start_time,end_time}
+            data = JSON.stringify(data)
 
             $.ajax({
-                type: 'GET',
-                url: "{% url 'add_activity' %}",
+                type: 'POST',
+                url: "{% url 'activity' %}",
                 data: data,
                 beforeSend: function(){
                     var spinner = '<div class="spinner-border text-dark" role="status"></div>'
@@ -158,28 +167,28 @@
                 },
                 success: function(response){
                     console.log(response);
-                    if (response.message=="Success"){
+                    if (response){
                         var alert_message = `<div class="alert alert-success alert-dismissible text-center" role="alert">
                             Activity Saved Successfully
                         </div>`
                     }
-                    else{
-                        var alert_message = `<div class="alert alert-danger alert-dismissible text-center" role="alert">
-                            ${response.message}
-                        </div>`
-                    }
                     $('#message_activity').html(alert_message);
-                    $('#activity_submit').html('Submit');
-                    $('#member_fk').val('Select');
-                    $('#start_time').val('');
-                    $('#end_time').val('');
                 },
                 error: function(response){
                     console.log(response);
+                    if (response){
+                        var alert_message = `<div class="alert alert-danger alert-dismissible text-center" role="alert">
+                            ${response.status} - ${response.statusText} - ${response.responseJSON.Error}
+                        </div>`
+                    }
+                    $('#message_activity').html(alert_message); 
                 }
             });
             setTimeout(reset_message, 3000);
-
+            $('#activity_submit').html('Submit');
+            $('#member_fk').val('Select');
+            $('#start_time').val('');
+            $('#end_time').val('');
             function reset_message() {
                 var copyMessage = $('#message_activity');
                 copyMessage.html("");

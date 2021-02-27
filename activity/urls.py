@@ -20,7 +20,5 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
-    path('add_member/', views.add_member, name='add_member'),
-    path('add_activity/', views.add_activity, name='add_activity'),
     path('api/', include('api.urls'), name='api'),
 ]
